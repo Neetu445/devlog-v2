@@ -5,6 +5,7 @@ const Post = require("./models/Post");
 const User = require("./models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 require("dotenv").config();
 
 //create app
@@ -14,6 +15,7 @@ const app = express();
 
 //server reads incomming data
 app.use(express.json());
+app.use(cors());
 
 //check user logged in
 const authMiddleware =(req, res, next) =>{
@@ -112,6 +114,44 @@ app.post("/signup", async(req, res)=>{
         res.status(500).send("Error creating user");
     }
 });
+
+// login
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // check user exists
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    // check password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // create token
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 //jwt 
 app.post("/login", async(req, res) =>{
