@@ -9,7 +9,9 @@ const postSchema =new mongoose.Schema({
     learned: [String],
     problems: [String],
     solutions: [String],
-    output: String,
+    screenshot:String,
+    video:String,
+    tags: [String],
     createdAt: {
         type: Date,
         default: Date.now

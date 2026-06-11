@@ -58,6 +58,24 @@ app.get("/", (req, res) => {
 //test post route
 //post created by login user
 app.post("/posts", authMiddleware, async(req,res) => {
+    const{
+        title, 
+        whatIDid,
+        learner,
+        problems,
+        solutions
+    } req.body;
+
+    if(
+        !title ||
+        !whatIDid?.length ||
+        !learned?.length ||
+        !problems?.length ||
+        !solutions?.length 
+    ){return res.status(404).json({
+        message:"All required feilds must be filled"
+    });
+}
     try{
         const newPost =new Post({...req.body, 
             userId: req.user.id}
@@ -75,7 +93,7 @@ app.post("/posts", authMiddleware, async(req,res) => {
 //get only my post
 app.get("/my-posts",authMiddleware, async(req, res) =>{
     try{
-        const posts = await Post.find({userId:req.user.id});
+        const posts = (await Post.find({userId:req.user.id})).toSorted({ createdAt: -1});
 
         res.json(posts);
     }catch(err){
